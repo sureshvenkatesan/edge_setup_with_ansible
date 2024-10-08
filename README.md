@@ -3,6 +3,8 @@
 
 This guide provides instructions to install JFrog Artifactory using Ansible, including configuration details and dependencies.
 
+Review steps in Blog [Official JFrog Ansible Collection for Artifactory & Xray](https://jfrog.com/blog/official-jfrog-ansible-collection-for-artifactory-xray/)
+
 ## Prerequisites
 
 ### 1. SSH Key Setup Between Servers
