@@ -7,7 +7,7 @@ Review steps in Blog [Official JFrog Ansible Collection for Artifactory & Xray](
 
 I did following steps from [How to install Ansible on RHEL9 Step by Step](https://medium.com/@jaine.mayank/how-to-install-ansible-on-rhel9-step-by-step-b462237f229e)
 
-### 2. Check Python and Ansible Versions
+### 1. Check Python and Ansible Versions
 
 
 Step-1 Install Ansible
@@ -25,21 +25,27 @@ Once Ansible is installed check the version of Ansible by running the below comm
 ```
 # ansible --version
 ```
+Note: This upgrades / installs `python3` as well.
 
+- Ensure Python 3 is installed:
+  ```bash
+  python3 -V
+  ```
 ---
 
-## Prerequisites
 
-### 1. SSH Key Setup Between Servers
-
-- Generate SSH keys and add them to the Ansible controller server:
+### SSH Key Setup Between the ansible controller box  and the Artifactory / Edge Servers
+2. 
+- Generate SSH keys on the Ansible controller box and add them to the  nodes used for the JFrog platform:
   ```bash
   ssh-keygen
   cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
   ```
+Note: I actually used the first Artifactory/Edge box i.e `sureshv-edge-1` itself as the Ansible controller box.
+
 - Ensure target servers are listed in an `hosts.ini` file for connectivity:
   ```bash
-  vi hosts.ini
+  vi ~/hosts.ini
   ```
   Then add the following details for the 2 artifactory/ edge nodes which form the HA cluster .
 ```
@@ -48,28 +54,24 @@ artifactory-1 ansible_host=sureshv-edge-1
 artifactory-2 ansible_host=sv-edge-2
 ```
 
-### 2. Check Python and Ansible Versions
 
-- Ensure Python 3 is installed:
-  ```bash
-  python3 -V
-  ```
 
-## Install Required Ansible Collections
+## Install Required  Ansible Collections needed for JFrog platform
 
-Run the following commands to install essential Ansible collections:
+3. Run the following commands to install essential Ansible collections:
 ```bash
 ansible-galaxy collection install community.postgresql community.general ansible.posix
 ansible-galaxy collection install jfrog.platform
 ```
 
+
 ## JFrog Artifactory Role Configuration
 
-1. Navigate to the Artifactory role’s configuration directory:
+4. Navigate to the Artifactory role’s configuration directory:
    ```bash
    cd ~/.ansible/collections/ansible_collections/jfrog/platform
    ```
-2. ## Define Global Variables
+5. ## Define Global Variables
 
 - Global variables, such as database details and URLs, are stored in:
 ```bash
@@ -96,7 +98,7 @@ artifactory_db_url: >-
   jdbc:postgresql://10.196.119.65:5432/{{ artifactory_db_name }}
 ```
 
-3. Update `~/.ansible/collections/ansible_collections/jfrog/platform/roles/artifactory/defaults/main.yml` with license information and optional upgrade settings:
+6. Update `~/.ansible/collections/ansible_collections/jfrog/platform/roles/artifactory/defaults/main.yml` with license information and optional upgrade settings:
 For example :
 - Set `artifactory_systemyaml_override` to false if you do not want to override the system YAML.
 - Enable `artifactory_upgrade_only` only if performing an upgrade.
@@ -233,7 +235,7 @@ artifactory_allow_crontab: false
 
 
 ## Running the Playbook
-
+7. 
 - Verify the playbook using `--check` option :
   ```bash
   ansible-playbook -vv ~/.ansible/collections/ansible_collections/jfrog/platform/platform.yml -i hosts.ini --private-key ~/.ssh/id_rsa --check
@@ -257,7 +259,7 @@ Install policycoreutils-python-utils on the target machine. On RHEL 8 and 9, thi
 sudo dnf install -y policycoreutils-python-utils
 ```
 
-If you run the command again , since the --check option does not make any changes on the node you will run into below error as no nginx service is installed
+8. If you run the command again , since the --check option does not make any changes on the node you will run into below error as no nginx service is installed
 ```
  TASK [jfrog.platform.artifactory_nginx : Restart nginx] ************************************************************************************************************************************************************************************
 task path: /home/sureshv/.ansible/collections/ansible_collections/jfrog/platform/roles/artifactory_nginx/tasks/main.yml:33
@@ -273,14 +275,17 @@ artifactory-1              : ok=16   changed=7    unreachable=0    failed=1    s
 
 ```
 
+9. 
 - Next apply the playbook without the `--check` option  to make changes:
   ```bash
   ansible-playbook -vv ~/.ansible/collections/ansible_collections/jfrog/platform/platform.yml -i hosts.ini --private-key ~/.ssh/id_rsa
   ```
 
+10. 
 - After the Artifactory / Edge HA is up  and license expired you can  update the expired license in 
 `~/.ansible/collections/ansible_collections/jfrog/installers/roles/artifactory_nginx_ssl/defaults/main.yml` and rerun the playbook without the `--check` option. 
 
+11. 
 - Sometimes if the artifactory service is not fully stopped and the restart artifactory task may fail . You can fix it by  getting the pid and kill it.
 ```
 sudo ps -ef | grep jf
@@ -294,7 +299,7 @@ As of now, **Xray High Availability (HA)** and **PostgreSQL HA** are not support
 
 ---
 
-## Following Ansible Installation (RHEL 8) did not work for me , so will remome this from this readme later.
+## Following Ansible Installation (RHEL 8) did not work for me , so will remove this from this readme later.
 
 1. Enable the repository containing Ansible 2.9 packages:
    ```bash
