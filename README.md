@@ -32,6 +32,15 @@ Note: This upgrades / installs `python3` as well.
   python3 -V
   ```
 ---
+In another RHEL setup we were able to install ansible usingL
+
+```
+sudo yum install subscription-manager
+sudo dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+sudo yum install ansible
+ansible-galaxy collection list
+```
+
 
 
 ### SSH Key Setup Between the ansible controller box  and the Artifactory / Edge Servers
@@ -54,7 +63,20 @@ artifactory-1 ansible_host=sureshv-edge-1
 artifactory-2 ansible_host=sv-edge-2
 ```
 
+---
+Note: If you want to install 1 edge and 1 Postgres Server the hosts.ini will be:
+```
+[postgres_servers]
+postgres-1 ansible_host=172.16.4.77
 
+[artifactory_servers]
+artifactory-1 ansible_host=172.16.4.70
+```
+On the Postgres Server Install Pip3 and the postgres module
+sudo yum install pip
+sudo pip3 install psycopg2-binary==2.9.8
+
+---
 
 ## Install Required  Ansible Collections needed for JFrog platform
 
@@ -102,137 +124,22 @@ artifactory_db_url: >-
 For example :
 - Set `artifactory_systemyaml_override` to false if you do not want to override the system YAML.
 - Enable `artifactory_upgrade_only` only if performing an upgrade.
-- If SSL is enabled, set `artifactory_nginx_ssl_enabled: true` 
-and   specify certificates in:
-```
-~/.ansible/collections/ansible_collections/jfrog/installers/roles/artifactory_nginx_ssl/defaults/main.yml
-```
+
+
+Examples:
+a) Then main.yml I used to setup Edge 2 node HA with `artifactory_nginx_ssl_enabled: false` is in 
+[jfrog/platform/roles/artifactory/defaults/main.yml.artifactory_nginx_ssl_enabled_false](jfrog/platform/roles/artifactory/defaults/main.yml.artifactory_nginx_ssl_enabled_false)
 
 Note: Ensure `artifactory_nginx_enabled` is set to false since both ports 443 and 80 cannot be enabled simultaneously.
 
 
-Here is my sample:
+b)
+- If SSL is enabled, set `artifactory_nginx_ssl_enabled: true` 
+and   specify certificates in:
+`~/.ansible/collections/ansible_collections/jfrog/installers/roles/artifactory_nginx_ssl/defaults/main.yml`
 
-```
-# The version of artifactory to install
-artifactory_version: 7.90.14
-
-# Set this to true when SSL is enabled (to use artifactory_nginx_ssl role), default to false (implies artifactory uses artifactory_nginx role )
-artifactory_nginx_ssl_enabled: false
-
-# Set this to false when ngnix is disabled, defaults to true (implies artifactory uses artifactory_nginx role )
-artifactory_nginx_enabled: true
-
-# Provide single or HA individual licenses file separated by new line and 2-space indentation and for HA, set artifactory_ha_enabled: true.
-# Example: Replace <license_1> , <license_2> , <license_3> with original licenses
-artifactory_licenses: |-
-  bGljZW5zZTogY0hKdlpIVmpkSE02Q2lBZ1lYSjBhV1poWTNSdmNuazZDaUFnSUNCd2NtOWtkV04w
-  T2lCYVdHaDNZVmhLYkdONmIyZE5ha0Y1VGxNd2QwOURNSGRQUmxGM1RVUnZkMDFFYjNkTlJtOUxZ
-
-  bGljZW5zZTogY0hKdlpIVmpkSE02Q2lBZ1lYSjBhV1poWTNSdmNuazZDaUFnSUNCd2NtOWtkV04w
-  T2lCYVdHaDNZVmhLYkdONmIyZE5ha0Y1VGxNd2QwOURNSGRQUmxGM1RVUnZkMDFFYjNkTlJtOUxZ
-
-# To enable HA, set to true
-artifactory_ha_enabled: true
-
-# By default, all nodes are primary (CNHA) - https://www.jfrog.com/confluence/display/JFROG/High+Availability#HighAvailability-Cloud-NativeHighAvailability
-artifactory_taskaffinity: any
-
-# To enable mission-control in artifactory (>= 7.27.x) applicable only on E+ license
-artifactory_mc_enabled: true
-
-# The location where Artifactory should install
-jfrog_home_directory: /opt/jfrog
-
-# Pick the Artifactory flavour to install, can be also cpp-ce/jcr/pro
-artifactory_flavour: pro
-
-# Whether to start Artifactory
-artifactory_start_service: true
-
-artifactory_extra_java_opts: -server -Xms512m -Xmx4g -Xss256k -XX:+UseG1GC
-artifactory_system_yaml_template: system.yaml.j2
-artifactory_tar_file_name: jfrog-artifactory-pro-{{ artifactory_version }}-linux.tar.gz
-artifactory_home: "{{ jfrog_home_directory }}/artifactory"
-artifactory_tar: "https://releases.jfrog.io/artifactory/artifactory-pro/org/artifactory/pro/jfrog-artifactory-pro/\
-  {{ artifactory_version }}/{{ artifactory_tar_file_name }}"
-artifactory_untar_home: "{{ jfrog_home_directory }}/artifactory-{{ artifactory_flavour }}-{{ artifactory_version }}"
-
-# Timeout in seconds for URL request
-artifactory_download_timeout: 10
-
-# Added optional variable to download from external url
-postgres_driver_download: true
-postgres_driver_version: 42.6.0
-postgres_driver_download_url: "https://repo1.maven.org/maven2/org/postgresql/postgresql/\
-  {{ postgres_driver_version }}/postgresql-{{ postgres_driver_version }}.jar"
-
-artifactory_user: artifactory
-artifactory_group: artifactory
-
-artifactory_daemon: artifactory
-
-artifactory_uid: 1030
-artifactory_gid: 1030
-
-# If this is an upgrade
-artifactory_upgrade_only: false
-
-# To run Artifactory with any database other than PostgreSQL, allowNonPostgresql set to true
-artifactory_allowNonPostgresql: false
-
-# Default username and password, uncomment and change to manage with ansible
-# artifactory_admin_username: admin
-# artifactory_admin_password: password
-
-artifactory_service_file: /lib/systemd/system/artifactory.service
-
-# Provide systemyaml content below with 2-space indentation
-artifactory_systemyaml: |-
-  configVersion: 1
-  shared:
-    security:
-      joinKey: "{{ join_key }}"
-    extraJavaOpts: "{{ artifactory_extra_java_opts }}"
-    node:
-      id: {{ ansible_hostname }}
-      ip: {{ ansible_host }}
-      taskAffinity: {{ artifactory_taskaffinity }}
-      haEnabled: {{ artifactory_ha_enabled }}
-    database:
-      allowNonPostgresql: {{ artifactory_allowNonPostgresql }}
-      type: "{{ artifactory_db_type }}"
-      driver: "{{ artifactory_db_driver }}"
-      url: "{{ artifactory_db_url }}"
-      username: "{{ artifactory_db_user }}"
-      password: "{{ artifactory_db_password }}"
-  mc:
-    enabled: {{ artifactory_mc_enabled }}
-  router:
-    entrypoints:
-      internalPort: 8046
-
-# Provide binarystore XML content below with 2-space indentation
-artifactory_binarystore: |-
-  {%- if artifactory_ha_enabled -%}
-  <?xml version="1.0" encoding="UTF-8"?>
-  <config version="2">
-    <chain template="cluster-file-system"/>
-  </config>
-  {%- else -%}
-  <?xml version="1.0" encoding="UTF-8"?>
-  <config version="1">
-    <chain template="file-system"/>
-  </config>
-  {%- endif -%}
-
-# Note: artifactory_systemyaml_override is by default false,  if you want to change default artifactory_systemyaml
-artifactory_systemyaml_override: false
-
-# Allow artifactory user to create crontab rules
-artifactory_allow_crontab: false
-```
-
+as in 
+[jfrog/platform/roles/artifactory/defaults/main.yml.artifactory_nginx_ssl_enabled_true](jfrog/platform/roles/artifactory/defaults/main.yml.artifactory_nginx_ssl_enabled_true)
 
 ## Running the Playbook
 7. 
