@@ -5,9 +5,14 @@ This guide provides instructions to install JFrog Artifactory using Ansible, inc
 
 Review steps in Blog [Official JFrog Ansible Collection for Artifactory & Xray](https://jfrog.com/blog/official-jfrog-ansible-collection-for-artifactory-xray/)
 
+### 1. Check Python and Ansible Versions
+
+There are 2 options to install Ansible.
+
+- Option1:
 I did following steps from [How to install Ansible on RHEL9 Step by Step](https://medium.com/@jaine.mayank/how-to-install-ansible-on-rhel9-step-by-step-b462237f229e)
 
-### 1. Check Python and Ansible Versions
+
 
 
 Step-1 Install Ansible
@@ -31,8 +36,10 @@ Note: This upgrades / installs `python3` as well.
   ```bash
   python3 -V
   ```
----
-In another RHEL setup we were able to install ansible usingL
+
+
+- Option2:
+In another totally different RHEL environment  we were able to install ansible using:
 
 ```
 sudo yum install subscription-manager
@@ -40,8 +47,9 @@ sudo dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noa
 sudo yum install ansible
 ansible-galaxy collection list
 ```
+So use either Option1 or Option2.
 
-
+---
 
 ### SSH Key Setup Between the ansible controller box  and the Artifactory / Edge Servers
 2. 
@@ -72,6 +80,7 @@ postgres-1 ansible_host=172.16.4.77
 [artifactory_servers]
 artifactory-1 ansible_host=172.16.4.70
 ```
+
 On the Postgres Server Install Pip3 and the postgres module
 sudo yum install pip
 sudo pip3 install psycopg2-binary==2.9.8
