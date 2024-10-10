@@ -136,7 +136,7 @@ For example :
 
 
 Examples:
-a) Then main.yml I used to setup Edge 2 node HA with `artifactory_nginx_ssl_enabled: false` is in 
+a) Then main.yml I used to setup Edge 2 node HA with `artifactory_nginx_ssl_enabled: false`  is simialr to content in: 
 [jfrog/platform/roles/artifactory/defaults/main.yml.artifactory_nginx_ssl_enabled_false](jfrog/platform/roles/artifactory/defaults/main.yml.artifactory_nginx_ssl_enabled_false)
 
 Note: Ensure `artifactory_nginx_enabled` is set to false since both ports 443 and 80 cannot be enabled simultaneously.
@@ -147,7 +147,7 @@ b)
 and   specify certificates in:
 `~/.ansible/collections/ansible_collections/jfrog/installers/roles/artifactory_nginx_ssl/defaults/main.yml`
 
-as in 
+simialr to content in: 
 [jfrog/platform/roles/artifactory/defaults/main.yml.artifactory_nginx_ssl_enabled_true](jfrog/platform/roles/artifactory/defaults/main.yml.artifactory_nginx_ssl_enabled_true)
 
 ## Running the Playbook
