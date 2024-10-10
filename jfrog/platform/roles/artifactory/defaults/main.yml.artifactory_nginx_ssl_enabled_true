@@ -13,7 +13,7 @@ artifactory_nginx_enabled: true
 # Example: Replace <license_1> , <license_2> , <license_3> with original licenses
 artifactory_licenses: |-
   bGljZW5zZTogY0hKdlpIVmpkSE02Q2lBZ1lYSjBhV1poWTNSdmNuazZDaUFnSUNCd2NtOWtkV04w
-T2lCYVdHaDNZVmhLYkdONmIyZE5ha0Y1VGxNd2QwOURNSGxOVmxGM1RVUnZkMDFFYjNkTlJtOUxZ
+  T2lCYVdHaDNZVmhLYkdONmIyZE5ha0Y1VGxNd2QwOURNSGxOVmxGM1RVUnZkMDFFYjNkTlJtOUxZ
 
 
 #   <license_2>

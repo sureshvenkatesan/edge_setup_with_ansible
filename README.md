@@ -215,20 +215,6 @@ As of now, **Xray High Availability (HA)** and **PostgreSQL HA** are not support
 
 ---
 
-## Following Ansible Installation (RHEL 8) did not work for me , so will remove this from this readme later.
-
-1. Enable the repository containing Ansible 2.9 packages:
-   ```bash
-   sudo subscription-manager repos --enable ansible-2.9-for-rhel-8-x86_64-rpms
-   sudo yum install subscription-manager
-   ```
-2. If the above does not work, install the EPEL repository:
-   ```bash
-   sudo dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
-   sudo yum install ansible
-   ```
-
----
 
 
 This guide should help you get JFrog Artifactory/ Edge HA  up and running smoothly.
